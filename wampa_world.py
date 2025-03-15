@@ -1,6 +1,6 @@
 import sys
 from scenarios import *
-from homework6 import Agent
+from agent import Agent
 from visualize_world import visualize_world
 from utils import get_direction, is_facing_wampa
 

@@ -443,7 +443,6 @@ class Agent:
     def current_path_setter(self, target):
         """set up current path (path[0] is current location so ignore)"""
         path = self.bfs_path(self.loc, target)
-        print(path)
         self.KB.current_path = deque(path[1:])
 
 
