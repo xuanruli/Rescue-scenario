@@ -4,6 +4,3 @@ __pycache__/
 
 # 忽略 IDE 配置文件（PyCharm）
 .idea/
-
-img.png
-img_1.png

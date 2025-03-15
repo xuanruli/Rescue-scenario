@@ -40,8 +40,8 @@ python3 wampa_world.py S1
 
 ## Screenshots
 
-![Shooting a Wampa](img_1.png)  
+![Shooting a Wampa](graph/img_1.png)  
 *The robot eliminating a Wampa with its blaster*
 
-![Game Complete](img.png)  
+![Game Complete](graph/img.png)  
 *Success screen after rescuing Luke and exiting the cave*
