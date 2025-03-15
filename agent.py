@@ -1,7 +1,7 @@
 import random
 from itertools import combinations
 from collections import deque
-from utils import flatten, get_direction, is_facing_wampa
+from utils import flatten, get_direction, is_facing_monster
 
 
 # KNOWLEDGE BASE
@@ -18,8 +18,8 @@ class KB:
         self.walls = set()  # set of rooms (x, y) that are known to be walls
         self.pits = set()  # set of rooms (x, y) that are known to be pits
         self.no_pit_rooms = set()    # set of rooms (x, y) that are known to be not pits
-        self.no_wampa_rooms = set()  # set of rooms (x, y) that are known to be not walls
-        self.wampa = None  # room (x, y) that is known to be the Wampa
+        self.no_monster_rooms = set()  # set of rooms (x, y) that are known to be not walls
+        self.monster = None  # room (x, y) that is known to be the Monster
         self.luke = None  # room (x, y) that is known to be Luke
         self.current_path = deque() # path to target that R2D2 should go in current state
 
@@ -109,29 +109,29 @@ class Agent:
 
     def enumerate_possible_worlds(self):
         """Return the set of all possible worlds, where a possible world is a
-        tuple of (pit_rooms, wampa_room), pit_rooms is a tuple of tuples
-        representing possible pit rooms, and wampa_room is a tuple representing
-        a possible wampa room.
+        tuple of (pit_rooms, monster_room), pit_rooms is a tuple of tuples
+        representing possible pit rooms, and monster_room is a tuple representing
+        a possible monster room.
 
         Since the goal is to combinatorially enumerate all the possible worlds
-        (pit and wampa locations) over the set of rooms that could potentially
-        have a pit or a wampa, we first want to find that set. To do that,
-        subtract the set of rooms that you know cannot have a pit or wampa from
+        (pit and monster locations) over the set of rooms that could potentially
+        have a pit or a monster, we first want to find that set. To do that,
+        subtract the set of rooms that you know cannot have a pit or monster from
         the set of all rooms.
 
         Then use itertools.combinations to return the set of possible worlds,
-        or all combinations of possible pit and wampa locations."""
+        or all combinations of possible pit and monster locations."""
 
         unknown_rooms = self.KB.all_rooms - self.KB.visited_rooms - self.KB.walls - self.KB.safe_rooms
         world = set()
         for k in range(len(unknown_rooms) + 1):
             pit_rooms = list(combinations(unknown_rooms, k))
             for pits in pit_rooms:
-                # add the case for No Wampa
+                # add the case for No Monster
                 world.add((pits, ()))
-                for wampa in unknown_rooms:
-                    if wampa not in pits:
-                        world.add((pits,flatten(wampa,)))
+                for monster in unknown_rooms:
+                    if monster not in pits:
+                        world.add((pits,flatten(monster,)))
         return world
 
 
@@ -151,16 +151,16 @@ class Agent:
         return True
 
 
-    def wampa_room_is_consistent_with_KB(self, wampa_room):
-        """Return True if the room could be a wampa given stench in KB, False
-        otherwise. A room could be a wampa if all adjacent rooms that have been
-        visited have had stench perceived in them. A room cannot be a wampa if
+    def monster_room_is_consistent_with_KB(self, monster_room):
+        """Return True if the room could be a monster given stench in KB, False
+        otherwise. A room could be a monster if all adjacent rooms that have been
+        visited have had stench perceived in them. A room cannot be a monster if
         any adjacent rooms that have been visited have not had stench perceived
         in them. This will be used to find the model of the KB."""
-        if wampa_room == tuple():  # It is possible that there is no Wampa
+        if monster_room == tuple():  # It is possible that there is no Monster
             return not self.KB.stench  # if no stench has been perceived yet
 
-        adj_room = self.adjacent_rooms(wampa_room)
+        adj_room = self.adjacent_rooms(monster_room)
         for r in adj_room:
             if r in self.KB.visited_rooms and r not in self.KB.stench:
                 return False
@@ -169,59 +169,59 @@ class Agent:
 
     def find_model_of_KB(self, possible_worlds):
         """Return the subset of all possible worlds consistent with KB.
-        possible_worlds is a set of tuples (pit_rooms, wampa_room),
+        possible_worlds is a set of tuples (pit_rooms, monster_room),
         pit_rooms is a set of tuples of possible pit rooms,
-        and wampa_room is a tuple representing a possible wampa room.
-        A world is consistent with the KB if wampa_room is consistent
+        and monster_room is a tuple representing a possible monster room.
+        A world is consistent with the KB if monster_room is consistent
         and all pit rooms are consistent with the KB."""
         res = set()
-        for pits, wampa in possible_worlds:
-            if self.wampa_room_is_consistent_with_KB(wampa):
+        for pits, monster in possible_worlds:
+            if self.monster_room_is_consistent_with_KB(monster):
                 pit_consistent = all(self.pit_room_is_consistent_with_KB(pit) for pit in pits) if pits else not self.KB.breeze
                 if pit_consistent:
-                    res.add((pits, wampa))
+                    res.add((pits, monster))
         return res
 
 
     def find_model_of_query(self, query, room, possible_worlds):
-        """Where query can be "pit_in_room", "wampa_in_room", "no_pit_in_room"
-        or "no_wampa_in_room",filter the set of worlds
+        """Where query can be "pit_in_room", "monster_in_room", "no_pit_in_room"
+        or "no_monster_in_room",filter the set of worlds
         according to the query and room """
         res = set()
-        for pits, wampa in possible_worlds:
+        for pits, monster in possible_worlds:
             match query:
                 case "pit_in_room":
                     if room in pits:
-                        res.add((pits, wampa))
+                        res.add((pits, monster))
                 case "no_pit_in_room":
                     if room not in pits:
-                        res.add((pits, wampa))
-                case "wampa_in_room":
-                    if wampa and room == wampa:
-                        res.add((pits, wampa))
-                case "no_wampa_in_room":
-                    if not wampa or room != wampa:
-                        res.add((pits, wampa))
+                        res.add((pits, monster))
+                case "monster_in_room":
+                    if monster and room == monster:
+                        res.add((pits, monster))
+                case "no_monster_in_room":
+                    if not monster or room != monster:
+                        res.add((pits, monster))
         return res
 
 
     def infer_single_room(self):
         """intermediate level inference before getting into resolution algorithm:
         By iterating every stench or breeze, if for a stench or breeze, there is only
-        one unknown room among its adjacent room, that room can be confirmed as wampa or pits
+        one unknown room among its adjacent room, that room can be confirmed as monster or pits
         """
         # check stench
-        if not self.KB.wampa and not self.KB.scream and self.KB.stench:
+        if not self.KB.monster and not self.KB.scream and self.KB.stench:
             for stench_room in self.KB.stench:
                 adjacent = self.adjacent_rooms(stench_room)
-                possible_wampa_rooms = {r for r in adjacent if
+                possible_monster_rooms = {r for r in adjacent if
                                         r not in self.KB.safe_rooms and
                                         r not in self.KB.pits and
                                         r not in self.KB.walls}
-                if len(possible_wampa_rooms) == 1:
-                    wampa_room = possible_wampa_rooms.pop()
-                    if self.KB.wampa != wampa_room:
-                        self.KB.wampa = wampa_room
+                if len(possible_monster_rooms) == 1:
+                    monster_room = possible_monster_rooms.pop()
+                    if self.KB.monster != monster_room:
+                        self.KB.monster = monster_room
 
         # check breeze
         if self.KB.breeze:
@@ -229,7 +229,7 @@ class Agent:
                 adjacent = self.adjacent_rooms(breeze_room)
                 possible_pit_rooms = {r for r in adjacent if
                                       r not in self.KB.safe_rooms and
-                                      r != self.KB.wampa and
+                                      r != self.KB.monster and
                                       r not in self.KB.walls}
                 if len(possible_pit_rooms) == 1:
                     pit_room = possible_pit_rooms.pop()
@@ -268,11 +268,11 @@ class Agent:
         of query model, then we can conclude the room is safe"""
         query_handlers = {
             "pit_in_room": lambda room: self.KB.pits.add(room),
-            "wampa_in_room": lambda room: setattr(self.KB, 'wampa', room),
+            "monster_in_room": lambda room: setattr(self.KB, 'monster', room),
             "no_pit_in_room": lambda room: (self.KB.no_pit_rooms.add(room), inferred_rooms.add(room)),
-            "no_wampa_in_room": lambda room: (self.KB.no_wampa_rooms.add(room), inferred_rooms.add(room))
+            "no_monster_in_room": lambda room: (self.KB.no_monster_rooms.add(room), inferred_rooms.add(room))
         }
-        query_types = ["pit_in_room", "wampa_in_room", "no_pit_in_room", "no_wampa_in_room"]
+        query_types = ["pit_in_room", "monster_in_room", "no_pit_in_room", "no_monster_in_room"]
 
         curr_location = self.loc
         possible_world = self.enumerate_possible_worlds()
@@ -288,7 +288,7 @@ class Agent:
                     handler(room)
 
         new_safe_rooms = {room for room in inferred_rooms
-                          if room in self.KB.no_pit_rooms and room in self.KB.no_wampa_rooms}
+                          if room in self.KB.no_pit_rooms and room in self.KB.no_monster_rooms}
         self.KB.safe_rooms.update(new_safe_rooms)
 
 
@@ -298,13 +298,13 @@ class Agent:
         adjacent rooms are safe.
         2. Infer wall locations given bump percept.
         3. Infer Luke's location given gasp percept.
-        4. Infer whether the Wampa is alive given scream percept. Clear stench
-        from the KB if Wampa is dead.
+        4. Infer whether the Monster is alive given scream percept. Clear stench
+        from the KB if Monster is dead.
 
         Then, add simple inference as single position, if there is only one unknown room
-        in adjacent room of stench or breeze, then it's definitely wampa or pit
+        in adjacent room of stench or breeze, then it's definitely monster or pit
 
-        Then, infer whether each adjacent room is safe, pit or wampa by
+        Then, infer whether each adjacent room is safe, pit or monster by
         following the backward-chaining resolution algorithm:
         1. Enumerate possible worlds.
         2. Find the model of the KB, i.e. the subset of possible worlds
@@ -312,7 +312,7 @@ class Agent:
         3. For each adjacent room and each query, find the model of the query.
         4. If the model of the KB is a subset of the model of the query, the
         query is entailed by the KB.
-        5. Update KB.pits, KB.wampa, and KB.safe_rooms based on any newly
+        5. Update KB.pits, KB.monster, and KB.safe_rooms based on any newly
         derived knowledge.
         """
         # Level I: Basic Inference
@@ -327,7 +327,7 @@ class Agent:
             self.KB.luke = curr_location
         if self.KB.scream:
             self.KB.stench = set()
-            self.KB.wampa = None
+            self.KB.monster = None
 
         # Level II: single room inference
         self.infer_single_room()
@@ -352,7 +352,7 @@ class Agent:
             safe_actions.append("climb")
         if not self.has_luke and self.KB.luke == self.loc:
             safe_actions.append("grab")
-        if self.blaster and self.KB.wampa and is_facing_wampa(self):
+        if self.blaster and self.KB.monster and is_facing_monster(self):
             safe_actions.append("shoot")
 
         return safe_actions
@@ -464,7 +464,7 @@ class Agent:
         """
         Choose next action from all safe next actions. I prioritize some
         actions based on current state. For first priority level, the robot
-        should do kill wampa, exit to origin...
+        should do kill monster, exit to origin...
 
         Then, if the action is not clear, robot will try to iterate unvisited
         room first to utilize resolution algorithm in max level
@@ -484,10 +484,10 @@ class Agent:
             return "grab"
         if "shoot" in actions:
             return "shoot"
-        if self.KB.wampa:
-            # if we know wampa position, set a path to approach and shoot it
-            self.KB.safe_rooms.add(self.KB.wampa)
-            self.current_path_setter(self.KB.wampa)
+        if self.KB.monster:
+            # if we know monster position, set a path to approach and shoot it
+            self.KB.safe_rooms.add(self.KB.monster)
+            self.current_path_setter(self.KB.monster)
 
         # Level II: robot doesn't have clear objective, try to iterate
         if self.KB.unvisited_rooms:

@@ -17,12 +17,12 @@ def get_direction(degrees):
             orientation = "left"
     return orientation
 
-def is_facing_wampa(agent):
+def is_facing_monster(agent):
     """You may wish to use this in all_safe_next_actions"""
-    if agent.KB.wampa == set():
+    if agent.KB.monster == set():
         return False
     x, y = agent.loc
-    wx, wy = agent.KB.wampa
+    wx, wy = agent.KB.monster
     direction = get_direction(agent.degrees)
     return (direction == "up" and wx == x and wy > y) or \
             (direction == "down" and wx == x and wy < y) or \

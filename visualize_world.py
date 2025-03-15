@@ -2,7 +2,7 @@ SPACING = 2
 
 def visualize_world(world, r2d2_location, r2d2_direction):
     grid_size = world.gridsize
-    wampa = world.wampa
+    monster = world.monster
     pits = world.pits
     luke = world.luke
     safe_rooms = world.agent.KB.safe_rooms
@@ -18,9 +18,9 @@ def visualize_world(world, r2d2_location, r2d2_direction):
     #     if 0 <= room[1] < grid_size[1] and 0 <= room[0] < grid_size[0]:
     #         grid[room[1]][room[0]] = 's'
     
-    # Place Wampa
-    if wampa:
-        grid[wampa[1]][wampa[0]] = 'W'
+    # Place Monster
+    if monster:
+        grid[monster[1]][monster[0]] = 'W'
     
     # Place pits
     for pit in pits:

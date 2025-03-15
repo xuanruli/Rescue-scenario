@@ -2,10 +2,10 @@ import sys
 from scenarios import *
 from agent import Agent
 from visualize_world import visualize_world
-from utils import get_direction, is_facing_wampa
+from utils import get_direction, is_facing_monster
 
 def fit_grid(grid, item):
-    """Used for calculating breeze and stench locationsbased on pit and wampa
+    """Used for calculating breeze and stench locationsbased on pit and monster
     locations."""
     grid_x, grid_y = grid
     x, y = item
@@ -23,22 +23,22 @@ def fit_grid(grid, item):
     return loc
 
 # ENVIRONMENT
-class WampaWorld:
+class MonsterWorld:
     def __init__(self, worldInit):
         self.gridsize = worldInit['grid']
         self.X = self.gridsize[0]
         self.Y = self.gridsize[1]
-        self.wampa = worldInit['wampa']
+        self.monster = worldInit['monster']
         self.pits = worldInit['pits']
         self.luke = worldInit['luke']
-        self.wampaAlive = True
+        self.monsterAlive = True
         self.is_playing = True
 
         # calculate breeze and stench locations
         breeze = []
         for pit in self.pits:
             breeze += fit_grid(self.gridsize, pit)
-        stench = fit_grid(self.gridsize, self.wampa)
+        stench = fit_grid(self.gridsize, self.monster)
 
         # prepopulate grid with percepts
         self.grid = [
@@ -86,7 +86,7 @@ class WampaWorld:
             else:
                 moved = False
 
-            if (self.get_location() == self.wampa and self.wampaAlive) or \
+            if (self.get_location() == self.monster and self.monsterAlive) or \
                 self.get_location() in self.pits:
                 self.agent.score -= 1000
                 print("R2-D2 has been crushed, -1000 points")
@@ -112,9 +112,9 @@ class WampaWorld:
         elif action == "shoot":
             if self.agent.blaster:
                 self.agent.blaster = False
-                if is_facing_wampa(self.agent):
-                    self.wampaAlive = False
-                    self.wampa = None
+                if is_facing_monster(self.agent):
+                    self.monsterAlive = False
+                    self.monster = None
                     for x in range(self.gridsize[0]):
                         for y in range(self.gridsize[1]):
                             self.grid[x][y][4] = "scream"  # scream everywhere
@@ -153,7 +153,7 @@ class WampaWorld:
 
 # RUN THE GAME
 def run_game(scenario):
-    w = WampaWorld(scenario)
+    w = MonsterWorld(scenario)
     is_playing = True
     while w.is_playing:
         visualize_world(w, w.agent.loc, get_direction(w.agent.degrees))
@@ -168,7 +168,7 @@ def run_game(scenario):
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python3 wampa_world.py <scenario>")
+        print("Usage: python3 monster_world.py <scenario>")
         quit()
     
     scenario_name = sys.argv[1]

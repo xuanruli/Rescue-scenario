@@ -1,10 +1,10 @@
-# Wampa World: AI-Powered Rescue Robot
+# Logical Rescue Robot
 
 A simulation of a rescue robot navigating a partially observable environment to save a human while avoiding dangers.
 
 ## Overview
 
-In Wampa World, you control a rescue robot (R2D2) tasked with finding and rescuing Luke Skywalker from a cave system inhabited by dangerous Wampas and treacherous pits. The robot uses logical inference to build knowledge about its environment and make intelligent decisions.
+You control a rescue robot tasked with finding and rescuing human from a cave system inhabited by dangerous monster and treacherous pits. The robot uses logical inference to build knowledge about its environment and make intelligent decisions.
 
 ## Key Features
 
@@ -18,7 +18,7 @@ In Wampa World, you control a rescue robot (R2D2) tasked with finding and rescui
 To run one of the predefined scenarios (Available scenarios range from S1 to S6):
 
 ```
-python3 wampa_world.py S1
+python3 monster_world.py S1
 ```
 
 
@@ -29,19 +29,19 @@ python3 wampa_world.py S1
 3. **Model-Based Reasoning**: Tests if knowledge entails specific facts by checking possible worlds
 
 ### Action Priority
-1. **Mission Critical**: Grab Luke, exit with Luke, shoot Wampas when possible
+1. **Mission Critical**: Grab human, exit with human, shoot monster when possible
 2. **Exploration**: Find and follow shortest path to nearest unvisited safe room
 3. **Random**: Choose safe random actions when no clear targets remain
 
 ## Game End Conditions
 
-- **Success**: Robot rescues Luke and exits the cave
-- **Failure**: Robot falls into a pit or is eaten by a Wampa
+- **Success**: Robot rescues human and exits the cave
+- **Failure**: Robot falls into a pit or is eaten by a monster
 
 ## Screenshots
 
-![Shooting a Wampa](graph/img_1.png)  
-*The robot eliminating a Wampa with its blaster*
+![Shooting a monster](graph/img_1.png)  
+*The robot eliminating a monster with its blaster*
 
 ![Game Complete](graph/img.png)  
-*Success screen after rescuing Luke and exiting the cave*
+*Success screen after rescuing human and exiting the cave*
