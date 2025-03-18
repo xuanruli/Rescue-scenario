@@ -1,6 +1,6 @@
 # Logical Rescue Robot
 
-A simulation of a rescue robot navigating a partially observable environment to save a human while avoiding dangers.
+A simulation of a rescue robot navigating a partially observable environment to save a human while avoiding dangers
 
 ## Overview
 
