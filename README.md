@@ -24,14 +24,14 @@ python3 monster_world.py S1
 
 ## Inference & Action Systems
 ### Inference Levels
-1. **Basic Perception**: Updates KB from percepts (breeze, stench, bumps)
-2. **Constraint Reasoning**: Deduces dangers when only one possible location exists
-3. **Model-Based Reasoning**: Tests if knowledge entails specific facts by checking possible worlds
+1. **Level I**: Updates KB from percepts (breeze, stench, bumps)
+2. **Level II**: Deduces dangers when only one possible location exists
+3. **Level III**: Test if query and KB model match based on resolution
 
 ### Action Priority
-1. **Mission Critical**: Grab human, exit with human, shoot monster when possible
-2. **Exploration**: Find and follow shortest path to nearest unvisited safe room
-3. **Random**: Choose safe random actions when no clear targets remain
+1. **Level I- Mission Critical**: Grab human, exit with human, shoot monster when possible
+2. **Level II - Follow Unvisited**: Find and follow shortest path to nearest unvisited safe room
+3. **Level III - Random Choice**: Choose safe random actions when no clear targets remain
 
 ## Game End Conditions
 
